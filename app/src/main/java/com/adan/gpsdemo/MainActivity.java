@@ -25,6 +25,7 @@ import java.util.List;
  * GPS 测试demo
  */
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "wxl";
     private StringBuffer sb;
     private TextView tvGPS,tvSatellite;
     LocationManager locationManager;
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             GpsStatus status = locationManager.getGpsStatus(null);
             String satelliteInfo = updateGpsStatus(event,status);
             tvSatellite.setText(null);
-            tvSatellite.setText(satelliteInfo);
+            tvSatellite.setText(satelliteInfo );
         }
     };
 
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Location location = locationManager.getLastKnownLocation(provider);
+        updateMsg(location);
         LocationListener ll = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             Iterator<GpsSatellite> it = status.getSatellites().iterator();
             numSatelliteList.clear();
             int count = 0;
-            while (it.hasNext()){
+            while (it.hasNext()&&count <= maxSatelites){
                 GpsSatellite s = it.next();
                 numSatelliteList.add(s);
                 count++;
@@ -125,10 +127,15 @@ public class MainActivity extends AppCompatActivity {
             sb.append("lat:"+lat+"\nlng:"+lng);
             if(loc.hasAccuracy()){
                 sb.append("\naccuracy:"+loc.getAccuracy());
+            }if(loc.hasBearing()){
+                sb.append("\nhasBearing:"+loc.getBearing());
+            }if(loc.hasAltitude()){
+                sb.append("\nhasAltitude:"+loc.getAltitude());
             }
         }else {
             sb.append("no info");
         }
+        Log.i(TAG,"sb.toString---------->"+sb.toString());
         return sb.toString();
     }
 
