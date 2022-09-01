@@ -94,7 +94,10 @@ public class TestGPS2 extends AppCompatActivity {
         };
         processPermission();
     }
-//    进程权限
+/**
+ * 进程权限检查
+  */
+
     private void processPermission(){
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             int hasPermission=checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -121,7 +124,10 @@ public class TestGPS2 extends AppCompatActivity {
             }
         }else{super.onRequestPermissionsResult(requestCode,permissions,grentResult);}
     }
-//    gps init
+
+    /**
+     * gps初始化
+     */
     @SuppressLint("MissingPermission")
     private void init(){
         lm=(LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -146,7 +152,10 @@ public class TestGPS2 extends AppCompatActivity {
         lm.removeUpdates(locationListener);
         super.onDestroy();
     }
-//    open gps
+
+    /**
+     * 打开gps的设置
+     */
     private void requestGPS(){
         if(!(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)||
                 lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))){
@@ -171,7 +180,7 @@ public class TestGPS2 extends AppCompatActivity {
     LocationListener locationListener=new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            try {
+            try {//发送通知经纬度改变，handle发信息
                 double lat=location.getLatitude();
                 double lng=location.getLongitude();
                 List<Address>listAddr=geocoder.getFromLocation(lat,lng,1);
@@ -191,27 +200,7 @@ public class TestGPS2 extends AppCompatActivity {
     GnssStatus.Callback gpsCallback=new GnssStatus.Callback() {
         @Override
         public void onSatelliteStatusChanged(@NonNull GnssStatus status) {
-//            Log.i(TAG,"2&2:"+(2&2));
-//            Log.i(TAG,"0&2:"+(0&2));
-//            Log.i(TAG,"512&2:"+(512&2));
-//            Log.i(TAG,"512&128:"+(512&128));
-//            int[] b = {2,4,6,12,14,19,20,31,9,17}; //卫星号10个
-//            int[]b2=new int[10];
-//            float[] c = {32.0f,12.0f,38.0f,30.0f,19.0f,21.0f,31.0f,0.0f,0.0f,0.0f};  //信噪比
-//            float[] d = {33.0f,20.0f,55.0f,19.0f,14.0f,19.0f,29.0f,1.0f,33.0f,53.0f}; //卫星高度
-//            float[] e = {295.0f,64.0f,340.0f,310.0f,177.0f,67.0f,230.0f,40.0f,104.0f,112.0f}; // 方位角
-//            float[] f = {1.57542003E9f,1.57542003E9f,1.57542003E9f,1.57542003E9f,1.57542003E9f,
-//                    1.60031245E9f,1.60031245E9f,1.60031245E9f,1.60031245E9f,1.60031245E9f};
-//            for(int i=0;i<b.length;i++){
-//                b2[i]=(b[i]<<8);
-//            }
-//            int svused=0;   //可用卫星
-//            for(int i=0;i<10;i++){
-//                if((b2[i]&(1<<2))!=0){svused++;}
-//            }
-//            Log.i(TAG,"svused:"+svused);
-//            Log.i(TAG,"b:"+ Arrays.toString(b2));
-            /********************/
+            //卫星信息改变，handle发信息
             super.onSatelliteStatusChanged(status);
             int count=status.getSatelliteCount();
             String str="卫星总数："+count+"\n";
