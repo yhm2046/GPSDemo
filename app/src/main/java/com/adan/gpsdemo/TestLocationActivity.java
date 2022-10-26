@@ -19,19 +19,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.adan.gpsdemo.databinding.ActivityTestBinding;
+
 import org.jetbrains.annotations.Contract;
 
 import java.util.List;
 import java.util.Locale;
 
 /**
+ * Date:2022.10.26  Wednesday
  * reference:
  * Android原生方式获取经纬度和城市信息
  * https://juejin.cn/post/6854573221472272397#heading-2
  *
+ * Describe:get longitude and latitude
  * test:
  * pixel4xl: android13,no display
  * huawei nova 5z:harmonyOS 2.0.0,can display
+ *
+ * google api default is WGS84,like 113°49'54''E,22°36'33''N can be identified
  */
 public class TestLocationActivity extends AppCompatActivity {
 
@@ -39,11 +45,13 @@ public class TestLocationActivity extends AppCompatActivity {
     public static final String TAG = "TestLocationActivity:wp";
     private LocationManager locationManager;
     private String locationProvider = null;
-
+    com.adan.gpsdemo.databinding.ActivityTestBinding activityTestBinding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activityTestBinding = ActivityTestBinding.inflate(getLayoutInflater());
+        setContentView(activityTestBinding.getRoot());
         getLocation();
     }
 
@@ -80,8 +88,10 @@ public class TestLocationActivity extends AppCompatActivity {
                 //3.获取上次的位置，一般第一次运行，此值为null
                 Location location = locationManager.getLastKnownLocation(locationProvider);
                 if (location!=null){
-                    Toast.makeText(this, location.getLongitude() + " " +
-                            location.getLatitude() + "",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, location.getLongitude() + " " +
+//                            location.getLatitude() + "",Toast.LENGTH_SHORT).show();
+//                    notice textview change
+                    showGPSValue(location.getLongitude(),location.getLatitude());
                     Log.v(TAG, "获取上次的位置-经纬度："+location.getLongitude()+"   "+location.getLatitude());
                     getAddress(location);
 
@@ -93,8 +103,7 @@ public class TestLocationActivity extends AppCompatActivity {
         } else {
             Location location = locationManager.getLastKnownLocation(locationProvider);
             if (location!=null){
-                Toast.makeText(this, location.getLongitude() + " " +
-                        location.getLatitude() + "", Toast.LENGTH_SHORT).show();
+                showGPSValue(location.getLongitude(),location.getLatitude());
                 Log.v(TAG, "获取上次的位置-经纬度："+location.getLongitude()+"   "+location.getLatitude());
                 getAddress(location);
 
@@ -103,6 +112,14 @@ public class TestLocationActivity extends AppCompatActivity {
                 locationManager.requestLocationUpdates(locationProvider, 3000, 1,locationListener);
             }
         }
+    }
+
+    private void showGPSValue(double longitude, double latitude){
+        new Thread(()->{
+            String gpsValue = "longitude:" + longitude +
+                    "\nlatitude:" + latitude;
+            activityTestBinding.tvGpsValue.setText(gpsValue);
+        }).start();
     }
 
     public LocationListener locationListener;
@@ -131,8 +148,7 @@ public class TestLocationActivity extends AppCompatActivity {
             public void onLocationChanged(Location location) {
                 if (location != null) {
                     //如果位置发生变化，重新显示地理位置经纬度
-                    Toast.makeText(TestLocationActivity.this, location.getLongitude() + " " +
-                            location.getLatitude() + "", Toast.LENGTH_SHORT).show();
+                    showGPSValue(location.getLongitude(),location.getLatitude());
                     Log.v(TAG, "监视地理位置变化-经纬度：" + location.getLongitude() + "   " + location.getLatitude());
                 }
             }
@@ -141,6 +157,7 @@ public class TestLocationActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -157,8 +174,7 @@ public class TestLocationActivity extends AppCompatActivity {
                     }
                     Location location = locationManager.getLastKnownLocation(locationProvider);
                     if (location != null) {
-                        Toast.makeText(this, location.getLongitude() + " " +
-                                location.getLatitude() + "", Toast.LENGTH_SHORT).show();
+                        showGPSValue(location.getLongitude(),location.getLatitude());
                         Log.v("TAG", "获取上次的位置-经纬度：" + location.getLongitude() + "   " + location.getLatitude());
                     } else {
                         // 监视地理位置变化，第二个和第三个参数分别为更新的最短时间minTime和最短距离minDistace
@@ -186,7 +202,11 @@ public class TestLocationActivity extends AppCompatActivity {
                 Geocoder gc = new Geocoder(this, Locale.getDefault());
                 result = gc.getFromLocation(location.getLatitude(),
                         location.getLongitude(), 1);
-                Toast.makeText(this, "获取地址信息："+result.toString(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, "获取地址信息："+result.toString(), Toast.LENGTH_LONG).show();
+                new Thread(()->{
+                    String addValue = result.toString();
+                    activityTestBinding.tvAddressValue.setText(addValue);
+                }).start();
                 Log.v(TAG, "获取地址信息："+ result);
             }
         } catch (Exception e) {
