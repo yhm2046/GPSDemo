@@ -1,6 +1,7 @@
 package com.adan.gpsdemo;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -23,6 +24,7 @@ import com.adan.gpsdemo.databinding.ActivityTestBinding;
 
 import org.jetbrains.annotations.Contract;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,6 +55,7 @@ public class TestLocationActivity extends AppCompatActivity {
         activityTestBinding = ActivityTestBinding.inflate(getLayoutInflater());
         setContentView(activityTestBinding.getRoot());
         getLocation();
+//        showGPSValue(113.8318472843884,22.609387992758244);
     }
 
     private void getLocation(){
@@ -114,12 +117,39 @@ public class TestLocationActivity extends AppCompatActivity {
         }
     }
 
+
+    @SuppressLint("SetTextI18n")
     private void showGPSValue(double longitude, double latitude){
         new Thread(()->{
-            String gpsValue = "longitude:" + longitude +
-                    "\nlatitude:" + latitude;
-            activityTestBinding.tvGpsValue.setText(gpsValue);
+//            113.8318472843884,22.609387992758244 change to 113°49'54''E,22°36'33''N
+            int hour = (int) longitude;
+            double minute = getDecimalValue(longitude) * 60;
+            double second = getDecimalValue(minute) * 60;
+
+            int hour_lat = (int) latitude;
+            double minute_lat = getDecimalValue(latitude) * 60;
+            double second_lat = getDecimalValue(minute_lat) * 60;
+
+            String strLong = hour + "°" + (int)minute + "'" + (int)second + "\"";
+            String strLat = hour_lat + "°" + (int)minute_lat + "'" + (int)second_lat + "\"";
+            Log.i(TAG,"longitude:" + strLong);
+            Log.i(TAG,"latitude:" + strLat);
+            activityTestBinding.tvGpsValue.setText(strLong + "E," + strLat + "N");
         }).start();
+    }
+
+    /**
+     * get decimal of a value
+     * @param value double include int and decimal
+     * @return decimal of value
+     */
+    private double getDecimalValue(double value){
+        long longPart = (long) value;
+        BigDecimal bigDecimal = new BigDecimal(Double.toString(value));
+        BigDecimal bigDecimalLongPart = new BigDecimal(Double.toString(longPart));
+        double dPoint = bigDecimal.subtract(bigDecimalLongPart).doubleValue();
+        Log.i(TAG,"DecimalValue:" + dPoint);
+        return dPoint;
     }
 
     public LocationListener locationListener;
