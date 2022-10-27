@@ -6,44 +6,79 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tv_gps_name"
+        android:gravity="center"
+        android:id="@+id/tv_wgs84_name"
         android:layout_width="116dp"
         android:layout_height="62dp"
-        android:text="@string/gps_str"
-        tools:layout_editor_absoluteX="50dp"
-        tools:layout_editor_absoluteY="58dp"
+        android:text="@string/wgs84_str"
+        app:layout_constraintBottom_toTopOf="@+id/tv_wgs84_value"
+        app:layout_constraintStart_toStartOf="@+id/tv_wgs84_value"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
         tools:ignore="MissingConstraints" />
 
     <TextView
+        android:gravity="center"
+        android:id="@+id/tv_gcj02_name"
+        android:layout_width="116dp"
+        android:layout_height="62dp"
+        android:text="@string/gcj02_str"
+        app:layout_constraintBottom_toTopOf="@+id/tv_gcj02_value"
+        app:layout_constraintStart_toStartOf="@+id/tv_gcj02_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_wgs84_value"
+        app:layout_constraintVertical_bias="0.5"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:gravity="center"
         android:id="@+id/tv_address_name"
         android:layout_width="116dp"
         android:layout_height="61dp"
-        android:layout_marginTop="38dp"
         android:text="@string/address_str"
-        app:layout_constraintStart_toStartOf="@+id/tv_gps_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_gps_value" />
-
-    <TextView
-        android:id="@+id/tv_gps_value"
-        android:layout_width="328dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="38dp"
-        app:layout_constraintStart_toStartOf="@+id/tv_gps_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_gps_name" />
+        app:layout_constraintBottom_toTopOf="@+id/tv_address_value"
+        app:layout_constraintStart_toStartOf="@+id/tv_address_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_gcj02_value"
+        app:layout_constraintVertical_bias="0.5" />
 
     <TextView
         android:id="@+id/tv_address_value"
         android:layout_width="324dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="38dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_address_name"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <TextView
+        android:gravity="center"
+        android:id="@+id/tv_wgs84_value"
+        android:layout_width="328dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/tv_gcj02_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_gcj02_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_wgs84_name"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <TextView
+        android:gravity="center"
+        android:id="@+id/tv_gcj02_value"
+        android:layout_width="328dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/tv_address_name"
         app:layout_constraintStart_toStartOf="@+id/tv_address_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_address_name" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_gcj02_name"
+        app:layout_constraintVertical_bias="0.5" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintStart_toStartOf="@+id/tv_wgs84_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.adan.gpsdemo;
 
+import static com.adan.gpsdemo.utils.JZLocationConverter.wgs84ToGcj02;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -21,6 +23,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.adan.gpsdemo.databinding.ActivityTestBinding;
+import com.adan.gpsdemo.utils.JZLocationConverter;
+import com.adan.gpsdemo.utils.LatLng;
 
 import org.jetbrains.annotations.Contract;
 
@@ -89,8 +93,8 @@ public class TestLocationActivity extends AppCompatActivity {
                 Location location = locationManager.getLastKnownLocation(locationProvider);
                 if (location!=null){
 //                    notice textview change
-                    showGPSValue(location.getLongitude(),location.getLatitude());
-                    Log.v(TAG, "获取上次的位置-经纬度："+location.getLongitude()+"   "+location.getLatitude());
+                    showWGS84Value(location.getLongitude(),location.getLatitude());
+                    showGCJ02Value(location.getLongitude(),location.getLatitude());
                     getAddress(location);
 
                 }else{
@@ -101,7 +105,8 @@ public class TestLocationActivity extends AppCompatActivity {
         } else {
             Location location = locationManager.getLastKnownLocation(locationProvider);
             if (location!=null){
-                showGPSValue(location.getLongitude(),location.getLatitude());
+                showWGS84Value(location.getLongitude(),location.getLatitude());
+                showGCJ02Value(location.getLongitude(),location.getLatitude());
                 Log.v(TAG, "获取上次的位置-经纬度："+location.getLongitude()+"   "+location.getLatitude());
                 getAddress(location);
 
@@ -112,9 +117,19 @@ public class TestLocationActivity extends AppCompatActivity {
         }
     }
 
+    private void showGCJ02Value(double longitude, double latitude){
+
+        new Thread(()->{
+            LatLng latLng = new LatLng(latitude,longitude);
+            JZLocationConverter jzLocationConverter = new JZLocationConverter();
+            LatLng reslut = wgs84ToGcj02(latLng);
+            Log.i(TAG,"GCJ02:"  +  reslut.getLongitude() + "," + reslut.getLatitude());
+            activityTestBinding.tvGcj02Value.setText(String.format("%s\n%s",  reslut.getLongitude(),reslut.getLatitude()));
+        }).start();
+    }
 
     @SuppressLint("SetTextI18n")
-    private void showGPSValue(double longitude, double latitude){
+    private void showWGS84Value(double longitude, double latitude){
         new Thread(()->{
 //            39.951111, 75.172778 change to  75°10'22''E,39°57'04''N
             int hour = (int) longitude;
@@ -127,9 +142,8 @@ public class TestLocationActivity extends AppCompatActivity {
 
             String strLong = hour + "°" + (int)minute + "'" + (int)second + "\"";
             String strLat = hour_lat + "°" + (int)minute_lat + "'" + (int)second_lat + "\"";
-            Log.i(TAG,"longitude:" + strLong);
-            Log.i(TAG,"latitude:" + strLat);
-            activityTestBinding.tvGpsValue.setText(strLong + "E," + strLat + "N");
+            Log.i(TAG,"WGS84:" + strLong + "E," + strLat + "N");
+            activityTestBinding.tvWgs84Value.setText(strLong + "E\n" + strLat + "N");
         }).start();
     }
 
@@ -173,8 +187,8 @@ public class TestLocationActivity extends AppCompatActivity {
             public void onLocationChanged(Location location) {
                 if (location != null) {
                     //如果位置发生变化，重新显示地理位置经纬度
-                    showGPSValue(location.getLongitude(),location.getLatitude());
-                    Log.v(TAG, "监视地理位置变化-经纬度：" + location.getLongitude() + "   " + location.getLatitude());
+                    showWGS84Value(location.getLongitude(),location.getLatitude());
+                    showGCJ02Value(location.getLongitude(),location.getLatitude());
                 }
             }
         };
@@ -199,8 +213,8 @@ public class TestLocationActivity extends AppCompatActivity {
                     }
                     Location location = locationManager.getLastKnownLocation(locationProvider);
                     if (location != null) {
-                        showGPSValue(location.getLongitude(),location.getLatitude());
-                        Log.v("TAG", "获取上次的位置-经纬度：" + location.getLongitude() + "   " + location.getLatitude());
+                        showWGS84Value(location.getLongitude(),location.getLatitude());
+                        showGCJ02Value(location.getLongitude(),location.getLatitude());
                     } else {
                         // 监视地理位置变化，第二个和第三个参数分别为更新的最短时间minTime和最短距离minDistace
                         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);

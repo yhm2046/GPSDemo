@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">GPSDemo</string>
     <string name="address_str">address</string>
-    <string name="gps_str">GPS</string>
+    <string name="wgs84_str">WGS84</string>
+    <string name="gcj02_str">GCJ02</string>
 </resources>
