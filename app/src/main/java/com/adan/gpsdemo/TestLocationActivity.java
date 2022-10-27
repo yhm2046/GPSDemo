@@ -55,16 +55,13 @@ public class TestLocationActivity extends AppCompatActivity {
         activityTestBinding = ActivityTestBinding.inflate(getLayoutInflater());
         setContentView(activityTestBinding.getRoot());
         getLocation();
-//        showGPSValue(113.8318472843884,22.609387992758244);
     }
 
     private void getLocation(){
         //1.获取位置管理器
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
         //2.获取位置提供器，GPS或是NetWork
         List<String> providers = locationManager.getProviders(true);
-
         if (providers.contains(LocationManager.GPS_PROVIDER)) {
             //如果是GPS
             locationProvider = LocationManager.GPS_PROVIDER;
@@ -91,8 +88,6 @@ public class TestLocationActivity extends AppCompatActivity {
                 //3.获取上次的位置，一般第一次运行，此值为null
                 Location location = locationManager.getLastKnownLocation(locationProvider);
                 if (location!=null){
-//                    Toast.makeText(this, location.getLongitude() + " " +
-//                            location.getLatitude() + "",Toast.LENGTH_SHORT).show();
 //                    notice textview change
                     showGPSValue(location.getLongitude(),location.getLatitude());
                     Log.v(TAG, "获取上次的位置-经纬度："+location.getLongitude()+"   "+location.getLatitude());
@@ -121,7 +116,7 @@ public class TestLocationActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void showGPSValue(double longitude, double latitude){
         new Thread(()->{
-//            113.8318472843884,22.609387992758244 change to 113°49'54''E,22°36'33''N
+//            39.951111, 75.172778 change to  75°10'22''E,39°57'04''N
             int hour = (int) longitude;
             double minute = getDecimalValue(longitude) * 60;
             double second = getDecimalValue(minute) * 60;
@@ -232,7 +227,6 @@ public class TestLocationActivity extends AppCompatActivity {
                 Geocoder gc = new Geocoder(this, Locale.getDefault());
                 result = gc.getFromLocation(location.getLatitude(),
                         location.getLongitude(), 1);
-//                Toast.makeText(this, "获取地址信息："+result.toString(), Toast.LENGTH_LONG).show();
                 new Thread(()->{
                     String addValue = result.toString();
                     activityTestBinding.tvAddressValue.setText(addValue);
