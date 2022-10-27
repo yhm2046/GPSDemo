@@ -23,7 +23,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.adan.gpsdemo.databinding.ActivityTestBinding;
-import com.adan.gpsdemo.utils.JZLocationConverter;
 import com.adan.gpsdemo.utils.LatLng;
 
 import org.jetbrains.annotations.Contract;
@@ -121,7 +120,6 @@ public class TestLocationActivity extends AppCompatActivity {
 
         new Thread(()->{
             LatLng latLng = new LatLng(latitude,longitude);
-            JZLocationConverter jzLocationConverter = new JZLocationConverter();
             LatLng reslut = wgs84ToGcj02(latLng);
             Log.i(TAG,"GCJ02:"  +  reslut.getLongitude() + "," + reslut.getLatitude());
             activityTestBinding.tvGcj02Value.setText(String.format("%s\n%s",  reslut.getLongitude(),reslut.getLatitude()));

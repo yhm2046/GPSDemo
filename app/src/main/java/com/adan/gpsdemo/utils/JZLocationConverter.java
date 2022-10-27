@@ -8,16 +8,13 @@ import androidx.annotation.NonNull;
  * Reference:https://github.com/taoweiji/JZLocationConverter-for-Android
  */
 public class JZLocationConverter {
-    private static double x;
-    private static double y;
+    private static LatLng location;
 
     private static double LAT_OFFSET_0(double x, double y) {
         return -1.0E02 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
     }
 
     private static double LAT_OFFSET_1(double x, double y) {
-        JZLocationConverter.x = x;
-        JZLocationConverter.y = y;
         return (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
     }
 
@@ -34,8 +31,6 @@ public class JZLocationConverter {
     }
 
     private static double LON_OFFSET_1(double x, double y) {
-        JZLocationConverter.x = x;
-        JZLocationConverter.y = y;
         return (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
     }
 
@@ -149,7 +144,9 @@ public class JZLocationConverter {
      *
      * ####此接口有1－2米左右的误差，需要精确定位情景慎用
      */
+    @NonNull
     public static LatLng gcj02ToWgs84(LatLng location) {
+        JZLocationConverter.location = location;
         return gcj02Decrypt(location.latitude, location.longitude);
     }
 
@@ -169,6 +166,7 @@ public class JZLocationConverter {
      * @return 百度地理坐标（BD-09)
      * @brief 中国国测局地理坐标（GCJ-02）<火星坐标> 转换成 百度地理坐标（BD-09)
      */
+    @NonNull
     public static LatLng gcj02ToBd09(LatLng location) {
         return bd09Encrypt(location.latitude, location.longitude);
     }
@@ -195,11 +193,4 @@ public class JZLocationConverter {
         return gcj02Decrypt(gcj02.latitude, gcj02.longitude);
     }
 
-    public static double getX() {
-        return x;
-    }
-
-    public static void setX(double x) {
-        JZLocationConverter.x = x;
-    }
 }
