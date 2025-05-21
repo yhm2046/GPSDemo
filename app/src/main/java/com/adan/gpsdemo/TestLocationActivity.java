@@ -1,6 +1,7 @@
 package com.adan.gpsdemo;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,10 +22,11 @@ import androidx.core.content.ContextCompat;
 
 import com.adan.gpsdemo.databinding.ActivityTestBinding;
 import com.adan.gpsdemo.utils.LatLng;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,22 +36,20 @@ import java.util.Locale;
  * reference:
  * Android source code to get GPS info
  * <a href="https://juejin.cn/post/6854573221472272397#heading-2">...</a>
- *
+
  * Describe:get longitude and latitude
  * test:
- * pixel,pixel2XL,pixel8:android10,11,15,can display
- * huawei nova 9pro can't display
- *
+ * pixel,pixel2XL,pixel8:android10,11,15
+ * huawei nova 9pro
+
  * google api default is WGS84,like 113°49'54''E,22°36'33''N can be identified
  */
-
 public class TestLocationActivity extends AppCompatActivity {
 
     public static final int LOCATION_CODE = 301;
     public static final String TAG = "TestLocationActivity:wp";
     private FusedLocationProviderClient fusedLocationClient;
     private LocationManager locationManager;
-    private String locationProvider = null;
     ActivityTestBinding activityTestBinding;
 
     @Override
@@ -81,23 +81,33 @@ public class TestLocationActivity extends AppCompatActivity {
     }
 
     private boolean isLocationEnabled() {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int status = apiAvailability.isGooglePlayServicesAvailable(this);
+        return status == ConnectionResult.SUCCESS;
+    }
+
     private void getLocation() {
+        // 先判断 Google 服务可用性
+        if (isGooglePlayServicesAvailable()) {
+            getLocationByFusedClient();
+        } else {
+            getLocationByLocationManager();
+        }
+    }
+
+    private void getLocationByFusedClient() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // 优先用 Google FusedLocationProviderClient
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationClient.getLastLocation()
@@ -112,19 +122,28 @@ public class TestLocationActivity extends AppCompatActivity {
                                         if (loc != null) {
                                             updateLocationUI(loc);
                                         } else {
-                                            tryLocationManager();
+                                            // fallback
+                                            getLocationByLocationManager();
                                         }
                                     });
                         } else {
-                            tryLocationManager();
+                            getLocationByLocationManager();
                         }
                     }
+                })
+                .addOnFailureListener(e -> {
+                    // fallback
+                    getLocationByLocationManager();
                 });
     }
 
-    // 兜底用 LocationManager
-    private void tryLocationManager() {
+    // 兜底用 LocationManager（兼容所有 Android 设备）
+    private void getLocationByLocationManager() {
+        if (locationManager == null) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
         List<String> providers = locationManager.getProviders(true);
+        String locationProvider = null;
         if (providers.contains(LocationManager.GPS_PROVIDER)) {
             locationProvider = LocationManager.GPS_PROVIDER;
         } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
@@ -143,6 +162,7 @@ public class TestLocationActivity extends AppCompatActivity {
             updateLocationUI(location);
         } else {
             locationManager.requestLocationUpdates(locationProvider, 3000, 1, locationListener);
+            Toast.makeText(this, "正在获取位置信息...", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -164,6 +184,7 @@ public class TestLocationActivity extends AppCompatActivity {
         }).start();
     }
 
+    @SuppressLint("SetTextI18n")
     private void showWGS84Value(double longitude, double latitude) {
         new Thread(() -> {
             int hour = (int) longitude;
@@ -227,7 +248,7 @@ public class TestLocationActivity extends AppCompatActivity {
                 runOnUiThread(() -> activityTestBinding.tvAddressValue.setText(addValue));
                 Log.v(TAG, "获取地址信息：" + result);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.i(TAG,"getAddress error:" + e);
             }
         }).start();
     }
